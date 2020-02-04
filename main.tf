@@ -1,3 +1,5 @@
+# https://github.com/terraform-aws-modules/terraform-aws-autoscaling
+
 #######################
 # Launch configuration
 #######################
@@ -46,7 +48,6 @@ resource "aws_launch_configuration" "this" {
       iops                  = lookup(root_block_device.value, "iops", null)
       volume_size           = lookup(root_block_device.value, "volume_size", null)
       volume_type           = lookup(root_block_device.value, "volume_type", null)
-      encrypted             = lookup(root_block_device.value, "encrypted", null)
     }
   }
 
@@ -92,7 +93,7 @@ resource "aws_autoscaling_group" "this" {
   metrics_granularity       = var.metrics_granularity
   wait_for_capacity_timeout = var.wait_for_capacity_timeout
   protect_from_scale_in     = var.protect_from_scale_in
-  service_linked_role_arn   = var.service_linked_role_arn
+  availability_zones        = var.availability_zones
 
   tags = concat(
     [
@@ -148,7 +149,6 @@ resource "aws_autoscaling_group" "this_with_initial_lifecycle_hook" {
   metrics_granularity       = var.metrics_granularity
   wait_for_capacity_timeout = var.wait_for_capacity_timeout
   protect_from_scale_in     = var.protect_from_scale_in
-  service_linked_role_arn   = var.service_linked_role_arn
 
   initial_lifecycle_hook {
     name                    = var.initial_lifecycle_hook_name

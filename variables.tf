@@ -303,9 +303,8 @@ variable "protect_from_scale_in" {
   default     = false
 }
 
-variable "service_linked_role_arn" {
-  description = "The ARN of the service-linked role that the ASG will use to call other AWS services."
-  type        = string
-  default     = ""
-}
+variable "availability_zones" {
+  description = "AZ zones"
+  type        = list(string)
 
+}
