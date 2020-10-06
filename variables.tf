@@ -125,9 +125,15 @@ variable "associate_public_ip_address" {
 }
 
 variable "user_data" {
-  description = "The user data to provide when launching the instance"
+  description = "The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead."
   type        = string
-  default     = " "
+  default     = null
+}
+
+variable "user_data_base64" {
+  description = "Can be used instead of user_data to pass base64-encoded binary data directly. Use this instead of user_data whenever the value is not a valid UTF-8 string. For example, gzip-encoded user data must be base64-encoded and passed via this argument to avoid corruption."
+  type        = string
+  default     = null
 }
 
 variable "enable_monitoring" {
@@ -303,8 +309,19 @@ variable "protect_from_scale_in" {
   default     = false
 }
 
+variable "service_linked_role_arn" {
+  description = "The ARN of the service-linked role that the ASG will use to call other AWS services."
+  type        = string
+  default     = ""
+}
+
+variable "max_instance_lifetime" {
+  description = "The maximum amount of time, in seconds, that an instance can be in service, values must be either equal to 0 or between 604800 and 31536000 seconds."
+  type        = number
+  default     = 0
+}
+
 variable "availability_zones" {
   description = "AZ zones"
   type        = list(string)
-
 }
