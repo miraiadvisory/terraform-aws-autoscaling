@@ -337,3 +337,9 @@ variable "availability_zones" {
   description = "AZ zones"
   type        = list(string)
 }
+
+variable "http_tokens" {
+  description = "http tokens"
+  type = string
+  default = "optional"
+}
