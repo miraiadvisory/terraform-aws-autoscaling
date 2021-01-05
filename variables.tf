@@ -333,11 +333,10 @@ variable "max_instance_lifetime" {
   default     = 0
 }
 
-variable "availability_zones" {
-  description = "AZ zones"
-  type        = list(string)
-  default = []
-}
+# variable "availability_zones" {
+#   description = "AZ zones"
+#   type        = list(string)
+# }
 
 variable "http_tokens" {
   description = "http tokens"
