@@ -336,6 +336,7 @@ variable "max_instance_lifetime" {
 variable "availability_zones" {
   description = "AZ zones"
   type        = list(string)
+  default = []
 }
 
 variable "http_tokens" {
