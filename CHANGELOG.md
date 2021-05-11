@@ -7,6 +7,40 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v4.1.0"></a>
+## [v4.1.0] - 2021-04-08
+
+- fix: add tags to launch template ([#141](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/141))
+
+
+<a name="v4.0.0"></a>
+## [v4.0.0] - 2021-04-08
+
+- feat: update module to include launch template support, mixed instances policy, instance refresh, etc. ([#139](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/139))
+- chore: update documentation and pin `terraform_docs` version to avoid future changes ([#138](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/138))
+- chore: align ci-cd static checks to use individual minimum Terraform versions ([#134](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/134))
+- chore: only run validate check on min terraform version ([#133](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/133))
+- chore: add ci-cd workflow for pre-commit checks ([#131](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/131))
+
+
+<a name="v3.9.0"></a>
+## [v3.9.0] - 2021-02-20
+
+- chore: update documentation based on latest `terraform-docs` which includes module and resource sections ([#129](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/129))
+
+
+<a name="v3.8.0"></a>
+## [v3.8.0] - 2020-11-24
+
+- fix: Updated supported Terraform versions ([#123](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/123))
+
+
+<a name="v3.7.0"></a>
+## [v3.7.0] - 2020-10-06
+
+- fix: conver to dynamic tags to allow for empty values ([#119](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/119))
+
+
 <a name="v3.6.0"></a>
 ## [v3.6.0] - 2020-08-13
 
@@ -19,6 +53,18 @@ All notable changes to this project will be documented in this file.
 ## [v3.5.0] - 2020-04-10
 
 - feat: Added max_instance_lifetime option for Auto Scaling Group ([#98](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/98))
+- Merge pull request [#96](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/96) from terraform-aws-modules/terraform-provider-githubfile-1584635499729228000
+- [ci skip] Create ".chglog/CHANGELOG.tpl.md".
+- Merge pull request [#95](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/95) from terraform-aws-modules/terraform-provider-githubfile-1584535727357380000
+- [ci skip] Create ".editorconfig".
+- Merge pull request [#94](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/94) from terraform-aws-modules/terraform-provider-githubfile-1584535687714717000
+- Merge pull request [#92](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/92) from terraform-aws-modules/terraform-provider-githubfile-1584535687714713000
+- Merge pull request [#91](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/91) from terraform-aws-modules/terraform-provider-githubfile-1584535687714674000
+- Merge pull request [#90](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/90) from terraform-aws-modules/terraform-provider-githubfile-1584535687714781000
+- [ci skip] Create "Makefile".
+- [ci skip] Create "LICENSE".
+- [ci skip] Create ".gitignore".
+- [ci skip] Create ".pre-commit-config.yaml".
 - Updated aws_ec2 example with service_linked_role_arn
 - Adds service_linked_role ([#77](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/77))
 - Updated pre-commit hooks
@@ -187,6 +233,7 @@ All notable changes to this project will be documented in this file.
 <a name="v1.0.3"></a>
 ## [v1.0.3] - 2017-10-04
 
+- Merge pull request [#5](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/5) from kospant/master
 - target_group_arns should be a list (workaround for issue: https://github.com/hashicorp/terraform/issues/13869)
 - target_group_arns should be a list (workaround for issue: https://github.com/hashicorp/terraform/issues/13869)
 
@@ -200,6 +247,7 @@ All notable changes to this project will be documented in this file.
 <a name="v1.0.1"></a>
 ## [v1.0.1] - 2017-09-26
 
+- Merge pull request [#2](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/2) from thanandorn/bugfix/lb_list_type
 - TF: Correct list all the way down
 - TF: Fix passing list from main to ASG submodule
 
@@ -211,7 +259,12 @@ All notable changes to this project will be documented in this file.
 - Initial commit
 
 
-[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v3.6.0...HEAD
+[Unreleased]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v4.1.0...HEAD
+[v4.1.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v4.0.0...v4.1.0
+[v4.0.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v3.9.0...v4.0.0
+[v3.9.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v3.8.0...v3.9.0
+[v3.8.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v3.7.0...v3.8.0
+[v3.7.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v3.6.0...v3.7.0
 [v3.6.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v3.5.0...v3.6.0
 [v3.5.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v2.12.0...v3.5.0
 [v2.12.0]: https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v3.4.0...v2.12.0
