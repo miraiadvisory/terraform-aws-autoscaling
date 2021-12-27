@@ -46,6 +46,9 @@ module "asg" {
   instance_refresh = {
     strategy = "Rolling"
     preferences = {
+      checkpoint_delay       = 600
+      checkpoint_percentages = [35, 70, 100]
+      instance_warmup        = 300
       min_healthy_percentage = 50
     }
     triggers = ["tag"]
@@ -252,16 +255,14 @@ There are two ways to specify tags for auto-scaling group in this module - `tags
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.26 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.30 |
-| <a name="requirement_null"></a> [null](#requirement\_null) | >= 2.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.64 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.30 |
-| <a name="provider_null"></a> [null](#provider\_null) | >= 2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.64 |
 
 ## Modules
 
@@ -272,9 +273,10 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_autoscaling_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
+| [aws_autoscaling_schedule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_schedule) | resource |
 | [aws_launch_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_configuration) | resource |
 | [aws_launch_template.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
-| [null_resource.tags_as_list_of_maps](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [aws_default_tags.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/default_tags) | data source |
 
 ## Inputs
 
@@ -289,6 +291,7 @@ No modules.
 | <a name="input_create_asg"></a> [create\_asg](#input\_create\_asg) | Determines whether to create autoscaling group or not | `bool` | `true` | no |
 | <a name="input_create_lc"></a> [create\_lc](#input\_create\_lc) | Determines whether to create launch configuration or not | `bool` | `false` | no |
 | <a name="input_create_lt"></a> [create\_lt](#input\_create\_lt) | Determines whether to create launch template or not | `bool` | `false` | no |
+| <a name="input_create_schedule"></a> [create\_schedule](#input\_create\_schedule) | Determines whether to create autoscaling group schedule or not | `bool` | `true` | no |
 | <a name="input_credit_specification"></a> [credit\_specification](#input\_credit\_specification) | (LT) Customize the credit specification of the instance | `map(string)` | `null` | no |
 | <a name="input_default_cooldown"></a> [default\_cooldown](#input\_default\_cooldown) | The amount of time, in seconds, after a scaling activity completes before another scaling activity can start | `number` | `null` | no |
 | <a name="input_default_version"></a> [default\_version](#input\_default\_version) | (LT) Default Version of the launch template | `string` | `null` | no |
@@ -314,6 +317,7 @@ No modules.
 | <a name="input_initial_lifecycle_hooks"></a> [initial\_lifecycle\_hooks](#input\_initial\_lifecycle\_hooks) | One or more Lifecycle Hooks to attach to the Auto Scaling Group before instances are launched. The syntax is exactly the same as the separate `aws_autoscaling_lifecycle_hook` resource, without the `autoscaling_group_name` attribute. Please note that this will only work when creating a new Auto Scaling Group. For all other use-cases, please use `aws_autoscaling_lifecycle_hook` resource | `list(map(string))` | `[]` | no |
 | <a name="input_instance_initiated_shutdown_behavior"></a> [instance\_initiated\_shutdown\_behavior](#input\_instance\_initiated\_shutdown\_behavior) | (LT) Shutdown behavior for the instance. Can be `stop` or `terminate`. (Default: `stop`) | `string` | `null` | no |
 | <a name="input_instance_market_options"></a> [instance\_market\_options](#input\_instance\_market\_options) | (LT) The market (purchasing) option for the instance | `any` | `null` | no |
+| <a name="input_instance_name"></a> [instance\_name](#input\_instance\_name) | Name that is propogated to launched EC2 instances via a tag - if not provided, defaults to `var.name` | `string` | `""` | no |
 | <a name="input_instance_refresh"></a> [instance\_refresh](#input\_instance\_refresh) | If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated | `any` | `null` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | The type of the instance to launch | `string` | `""` | no |
 | <a name="input_kernel_id"></a> [kernel\_id](#input\_kernel\_id) | (LT) The kernel ID | `string` | `null` | no |
@@ -327,7 +331,7 @@ No modules.
 | <a name="input_lt_name"></a> [lt\_name](#input\_lt\_name) | Name of launch template to be created | `string` | `""` | no |
 | <a name="input_lt_use_name_prefix"></a> [lt\_use\_name\_prefix](#input\_lt\_use\_name\_prefix) | Determines whether to use `lt_name` as is or create a unique name beginning with the `lt_name` as the prefix | `bool` | `true` | no |
 | <a name="input_lt_version"></a> [lt\_version](#input\_lt\_version) | Launch template version. Can be version number, `$Latest`, or `$Default` | `string` | `null` | no |
-| <a name="input_max_instance_lifetime"></a> [max\_instance\_lifetime](#input\_max\_instance\_lifetime) | The maximum amount of time, in seconds, that an instance can be in service, values must be either equal to 0 or between 604800 and 31536000 seconds | `number` | `null` | no |
+| <a name="input_max_instance_lifetime"></a> [max\_instance\_lifetime](#input\_max\_instance\_lifetime) | The maximum amount of time, in seconds, that an instance can be in service, values must be either equal to 0 or between 86400 and 31536000 seconds | `number` | `null` | no |
 | <a name="input_max_size"></a> [max\_size](#input\_max\_size) | The maximum size of the autoscaling group | `number` | `null` | no |
 | <a name="input_metadata_options"></a> [metadata\_options](#input\_metadata\_options) | Customize the metadata options for the instance | `map(string)` | `null` | no |
 | <a name="input_metrics_granularity"></a> [metrics\_granularity](#input\_metrics\_granularity) | The granularity to associate with the metrics to collect. The only valid value is `1Minute` | `string` | `null` | no |
@@ -339,9 +343,11 @@ No modules.
 | <a name="input_placement"></a> [placement](#input\_placement) | (LT) The placement of the instance | `map(string)` | `null` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | The name of the placement group into which you'll launch your instances, if any | `string` | `null` | no |
 | <a name="input_placement_tenancy"></a> [placement\_tenancy](#input\_placement\_tenancy) | (LC) The tenancy of the instance. Valid values are `default` or `dedicated` | `string` | `null` | no |
+| <a name="input_propagate_name"></a> [propagate\_name](#input\_propagate\_name) | Determines whether to propagate the `var.instance_name`/`var.name` tag to launch instances | `bool` | `true` | no |
 | <a name="input_protect_from_scale_in"></a> [protect\_from\_scale\_in](#input\_protect\_from\_scale\_in) | Allows setting instance protection. The autoscaling group will not select instances with this setting for termination during scale in events. | `bool` | `false` | no |
 | <a name="input_ram_disk_id"></a> [ram\_disk\_id](#input\_ram\_disk\_id) | (LT) The ID of the ram disk | `string` | `null` | no |
 | <a name="input_root_block_device"></a> [root\_block\_device](#input\_root\_block\_device) | (LC) Customize details about the root block device of the instance | `list(map(string))` | `[]` | no |
+| <a name="input_schedules"></a> [schedules](#input\_schedules) | Map of autoscaling group schedule to create | `map(any)` | `{}` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | A list of security group IDs to associate | `list(string)` | `null` | no |
 | <a name="input_service_linked_role_arn"></a> [service\_linked\_role\_arn](#input\_service\_linked\_role\_arn) | The ARN of the service-linked role that the ASG will use to call other AWS services | `string` | `null` | no |
 | <a name="input_spot_price"></a> [spot\_price](#input\_spot\_price) | (LC) The maximum price to use for reserving spot instances (defaults to on-demand price) | `string` | `null` | no |
@@ -356,11 +362,12 @@ No modules.
 | <a name="input_use_lt"></a> [use\_lt](#input\_use\_lt) | Determines whether to use a launch template in the autoscaling group or not | `bool` | `false` | no |
 | <a name="input_use_mixed_instances_policy"></a> [use\_mixed\_instances\_policy](#input\_use\_mixed\_instances\_policy) | Determines whether to use a mixed instances policy in the autoscaling group or not | `bool` | `false` | no |
 | <a name="input_use_name_prefix"></a> [use\_name\_prefix](#input\_use\_name\_prefix) | Determines whether to use `name` as is or create a unique name beginning with the `name` as the prefix | `bool` | `true` | no |
-| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | (LC) The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see `user_data_base64` instead | `string` | `null` | no |
-| <a name="input_user_data_base64"></a> [user\_data\_base64](#input\_user\_data\_base64) | The Base64-encoded user data to provide when launching the instance | `string` | `null` | no |
+| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | (LC) The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument nor when using Launch Templates; see `user_data_base64` instead | `string` | `null` | no |
+| <a name="input_user_data_base64"></a> [user\_data\_base64](#input\_user\_data\_base64) | The Base64-encoded user data to provide when launching the instance. You should use this for Launch Templates instead user\_data | `string` | `null` | no |
 | <a name="input_vpc_zone_identifier"></a> [vpc\_zone\_identifier](#input\_vpc\_zone\_identifier) | A list of subnet IDs to launch resources in. Subnets automatically determine which availability zones the group will reside. Conflicts with `availability_zones` | `list(string)` | `null` | no |
 | <a name="input_wait_for_capacity_timeout"></a> [wait\_for\_capacity\_timeout](#input\_wait\_for\_capacity\_timeout) | A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. (See also Waiting for Capacity below.) Setting this to '0' causes Terraform to skip all Capacity Waiting behavior. | `string` | `null` | no |
 | <a name="input_wait_for_elb_capacity"></a> [wait\_for\_elb\_capacity](#input\_wait\_for\_elb\_capacity) | Setting this will cause Terraform to wait for exactly this number of healthy instances in all attached load balancers on both create and update operations. Takes precedence over `min_elb_capacity` behavior. | `number` | `null` | no |
+| <a name="input_warm_pool"></a> [warm\_pool](#input\_warm\_pool) | If this block is configured, add a Warm Pool to the specified Auto Scaling group | `any` | `null` | no |
 
 ## Outputs
 
@@ -379,6 +386,7 @@ No modules.
 | <a name="output_autoscaling_group_name"></a> [autoscaling\_group\_name](#output\_autoscaling\_group\_name) | The autoscaling group name |
 | <a name="output_autoscaling_group_target_group_arns"></a> [autoscaling\_group\_target\_group\_arns](#output\_autoscaling\_group\_target\_group\_arns) | List of Target Group ARNs that apply to this AutoScaling Group |
 | <a name="output_autoscaling_group_vpc_zone_identifier"></a> [autoscaling\_group\_vpc\_zone\_identifier](#output\_autoscaling\_group\_vpc\_zone\_identifier) | The VPC zone identifier |
+| <a name="output_autoscaling_schedule_arns"></a> [autoscaling\_schedule\_arns](#output\_autoscaling\_schedule\_arns) | ARNs of autoscaling group schedules |
 | <a name="output_launch_configuration_arn"></a> [launch\_configuration\_arn](#output\_launch\_configuration\_arn) | The ARN of the launch configuration |
 | <a name="output_launch_configuration_id"></a> [launch\_configuration\_id](#output\_launch\_configuration\_id) | The ID of the launch configuration |
 | <a name="output_launch_configuration_name"></a> [launch\_configuration\_name](#output\_launch\_configuration\_name) | The name of the launch configuration |

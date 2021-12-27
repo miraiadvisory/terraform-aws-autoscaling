@@ -1,31 +1,36 @@
+data "aws_default_tags" "current" {}
+
 locals {
   lc_name              = coalesce(var.lc_name, var.name)
   launch_configuration = var.create_lc ? aws_launch_configuration.this[0].name : var.launch_configuration
 
-  lt_name         = coalesce(var.lt_name, var.name)
-  launch_template = var.create_lt ? aws_launch_template.this[0].name : var.launch_template
+  lt_name                 = coalesce(var.lt_name, var.name)
+  launch_template         = var.create_lt ? aws_launch_template.this[0].name : var.launch_template
+  launch_template_version = var.create_lt && var.lt_version == null ? aws_launch_template.this[0].latest_version : var.lt_version
 
-  tags = concat(
+  tags = distinct(concat(
+    [for k, v in data.aws_default_tags.current.tags :
+      { key                 = k
+        value               = v
+        propagate_at_launch = true
+      }
+    ],
     [
       {
-        "key"                 = "Name"
-        "value"               = var.name
-        "propagate_at_launch" = true
+        key                 = "Name"
+        value               = coalesce(var.instance_name, var.name)
+        propagate_at_launch = var.propagate_name
       },
     ],
     var.tags,
-    null_resource.tags_as_list_of_maps.*.triggers,
-  )
-}
-
-resource "null_resource" "tags_as_list_of_maps" {
-  count = length(keys(var.tags_as_map))
-
-  triggers = {
-    "key"                 = keys(var.tags_as_map)[count.index]
-    "value"               = values(var.tags_as_map)[count.index]
-    "propagate_at_launch" = true
-  }
+    [for k, v in var.tags_as_map :
+      {
+        key                 = k
+        value               = v
+        propagate_at_launch = true
+      }
+    ]
+  ))
 }
 
 ################################################################################
@@ -60,6 +65,7 @@ resource "aws_launch_configuration" "this" {
       delete_on_termination = lookup(ebs_block_device.value, "delete_on_termination", null)
       encrypted             = lookup(ebs_block_device.value, "encrypted", null)
       iops                  = lookup(ebs_block_device.value, "iops", null)
+      throughput            = lookup(ebs_block_device.value, "throughput", null)
       no_device             = lookup(ebs_block_device.value, "no_device", null)
       snapshot_id           = lookup(ebs_block_device.value, "snapshot_id", null)
       volume_size           = lookup(ebs_block_device.value, "volume_size", null)
@@ -81,6 +87,7 @@ resource "aws_launch_configuration" "this" {
       delete_on_termination = lookup(root_block_device.value, "delete_on_termination", null)
       encrypted             = lookup(root_block_device.value, "encrypted", null)
       iops                  = lookup(root_block_device.value, "iops", null)
+      throughput            = lookup(root_block_device.value, "throughput", null)
       volume_size           = lookup(root_block_device.value, "volume_size", null)
       volume_type           = lookup(root_block_device.value, "volume_type", null)
     }
@@ -222,7 +229,7 @@ resource "aws_launch_template" "this" {
       dynamic "spot_options" {
         for_each = lookup(instance_market_options.value, "spot_options", null) != null ? [instance_market_options.value.spot_options] : []
         content {
-          block_duration_minutes         = spot_options.value.block_duration_minutes
+          block_duration_minutes         = lookup(spot_options.value, "block_duration_minutes", null)
           instance_interruption_behavior = lookup(spot_options.value, "instance_interruption_behavior", null)
           max_price                      = lookup(spot_options.value, "max_price", null)
           spot_instance_type             = lookup(spot_options.value, "spot_instance_type", null)
@@ -245,6 +252,7 @@ resource "aws_launch_template" "this" {
       http_endpoint               = lookup(metadata_options.value, "http_endpoint", null)
       http_tokens                 = lookup(metadata_options.value, "http_tokens", null)
       http_put_response_hop_limit = lookup(metadata_options.value, "http_put_response_hop_limit", null)
+      http_protocol_ipv6          = lookup(metadata_options.value, "http_protocol_ipv6", null)
     }
   }
 
@@ -263,11 +271,13 @@ resource "aws_launch_template" "this" {
       delete_on_termination        = lookup(network_interfaces.value, "delete_on_termination", null)
       description                  = lookup(network_interfaces.value, "description", null)
       device_index                 = lookup(network_interfaces.value, "device_index", null)
+      interface_type               = lookup(network_interfaces.value, "interface_type", null)
       ipv4_addresses               = lookup(network_interfaces.value, "ipv4_addresses", null) != null ? network_interfaces.value.ipv4_addresses : []
       ipv4_address_count           = lookup(network_interfaces.value, "ipv4_address_count", null)
       ipv6_addresses               = lookup(network_interfaces.value, "ipv6_addresses", null) != null ? network_interfaces.value.ipv6_addresses : []
       ipv6_address_count           = lookup(network_interfaces.value, "ipv6_address_count", null)
       network_interface_id         = lookup(network_interfaces.value, "network_interface_id", null)
+      network_card_index           = lookup(network_interfaces.value, "network_card_index", null)
       private_ip_address           = lookup(network_interfaces.value, "private_ip_address", null)
       security_groups              = lookup(network_interfaces.value, "security_groups", null) != null ? network_interfaces.value.security_groups : []
       subnet_id                    = lookup(network_interfaces.value, "subnet_id", null)
@@ -277,13 +287,14 @@ resource "aws_launch_template" "this" {
   dynamic "placement" {
     for_each = var.placement != null ? [var.placement] : []
     content {
-      affinity          = lookup(placement.value, "affinity", null)
-      availability_zone = lookup(placement.value, "availability_zone", null)
-      group_name        = lookup(placement.value, "group_name", null)
-      host_id           = lookup(placement.value, "host_id", null)
-      spread_domain     = lookup(placement.value, "spread_domain", null)
-      tenancy           = lookup(placement.value, "tenancy", null)
-      partition_number  = lookup(placement.value, "partition_number", null)
+      affinity                = lookup(placement.value, "affinity", null)
+      availability_zone       = lookup(placement.value, "availability_zone", null)
+      group_name              = lookup(placement.value, "group_name", null)
+      host_id                 = lookup(placement.value, "host_id", null)
+      host_resource_group_arn = lookup(placement.value, "host_resource_group_arn", null)
+      spread_domain           = lookup(placement.value, "spread_domain", null)
+      tenancy                 = lookup(placement.value, "tenancy", null)
+      partition_number        = lookup(placement.value, "partition_number", null)
     }
   }
 
@@ -319,7 +330,7 @@ resource "aws_autoscaling_group" "this" {
 
     content {
       name    = local.launch_template
-      version = var.lt_version
+      version = local.launch_template_version
     }
   }
 
@@ -373,6 +384,8 @@ resource "aws_autoscaling_group" "this" {
       dynamic "preferences" {
         for_each = lookup(instance_refresh.value, "preferences", null) != null ? [instance_refresh.value.preferences] : []
         content {
+          checkpoint_delay       = lookup(preferences.value, "checkpoint_delay", null)
+          checkpoint_percentages = lookup(preferences.value, "checkpoint_percentages", null)
           instance_warmup        = lookup(preferences.value, "instance_warmup", null)
           min_healthy_percentage = lookup(preferences.value, "min_healthy_percentage", null)
         }
@@ -398,7 +411,7 @@ resource "aws_autoscaling_group" "this" {
       launch_template {
         launch_template_specification {
           launch_template_name = local.launch_template
-          version              = var.lt_version
+          version              = local.launch_template_version
         }
 
         dynamic "override" {
@@ -419,6 +432,15 @@ resource "aws_autoscaling_group" "this" {
     }
   }
 
+  dynamic "warm_pool" {
+    for_each = var.warm_pool != null ? [var.warm_pool] : []
+    content {
+      pool_state                  = lookup(warm_pool.value, "pool_state", null)
+      min_size                    = lookup(warm_pool.value, "min_size", null)
+      max_group_prepared_capacity = lookup(warm_pool.value, "max_group_prepared_capacity", null)
+    }
+  }
+
   timeouts {
     delete = var.delete_timeout
   }
@@ -428,4 +450,25 @@ resource "aws_autoscaling_group" "this" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+################################################################################
+# Autoscaling group schedule
+################################################################################
+resource "aws_autoscaling_schedule" "this" {
+  for_each = var.create_asg && var.create_schedule ? var.schedules : {}
+
+  scheduled_action_name  = each.key
+  autoscaling_group_name = aws_autoscaling_group.this[0].name
+
+  min_size         = lookup(each.value, "min_size", null)
+  max_size         = lookup(each.value, "max_size", null)
+  desired_capacity = lookup(each.value, "desired_capacity", null)
+  start_time       = lookup(each.value, "start_time", null)
+  end_time         = lookup(each.value, "end_time", null)
+  time_zone        = lookup(each.value, "time_zone", null)
+
+  # [Minute] [Hour] [Day_of_Month] [Month_of_Year] [Day_of_Week]
+  # Cron examples: https://crontab.guru/examples.html
+  recurrence = lookup(each.value, "recurrence", null)
 }

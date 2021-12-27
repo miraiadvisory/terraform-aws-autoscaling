@@ -1,6 +1,12 @@
 provider "aws" {
   region = local.region
 
+  default_tags {
+    tags = {
+      Project = "terraform-aws-autoscaling"
+    }
+  }
+
   # Make it faster by skipping something
   skip_get_ec2_platforms      = true
   skip_metadata_api_check     = true
@@ -21,7 +27,7 @@ locals {
     },
     {
       key                 = "foo"
-      value               = ""
+      value               = "something"
       propagate_at_launch = true
     },
   ]
@@ -357,6 +363,7 @@ module "complete_lt" {
   # Autoscaling group
   name            = "complete-lt-${local.name}"
   use_name_prefix = false
+  instance_name   = "my-instance-name"
 
   min_size                  = 0
   max_size                  = 1
@@ -388,6 +395,9 @@ module "complete_lt" {
   instance_refresh = {
     strategy = "Rolling"
     preferences = {
+      checkpoint_delay       = 600
+      checkpoint_percentages = [35, 70, 100]
+      instance_warmup        = 300
       min_healthy_percentage = 50
     }
     triggers = ["tag"]
@@ -506,6 +516,32 @@ module "complete_lt" {
 
   tags        = local.tags
   tags_as_map = local.tags_as_map
+
+  # Autoscaling Schedule
+  schedules = {
+    night = {
+      min_size         = 0
+      max_size         = 0
+      desired_capacity = 0
+      recurrence       = "0 18 * * 1-5" # Mon-Fri in the evening
+      time_zone        = "Europe/Rome"
+    }
+
+    morning = {
+      min_size         = 0
+      max_size         = 1
+      desired_capacity = 1
+      recurrence       = "0 7 * * 1-5" # Mon-Fri in the morning
+    }
+
+    go-offline-to-celebrate-new-year = {
+      min_size         = 0
+      max_size         = 0
+      desired_capacity = 0
+      start_time       = "2031-12-31T10:00:00Z" # Should be in the future
+      end_time         = "2032-01-01T16:00:00Z"
+    }
+  }
 }
 
 # Launch configuration
@@ -515,6 +551,7 @@ module "complete_lc" {
   # Autoscaling group
   name            = "complete-lc-${local.name}"
   use_name_prefix = false
+  instance_name   = "my-instance-name"
 
   min_size                  = 0
   max_size                  = 1
@@ -546,6 +583,9 @@ module "complete_lc" {
   instance_refresh = {
     strategy = "Rolling"
     preferences = {
+      checkpoint_delay       = 600
+      checkpoint_percentages = [35, 70, 100]
+      instance_warmup        = 300
       min_healthy_percentage = 50
     }
     triggers = ["tag"]
@@ -639,6 +679,9 @@ module "mixed_instance" {
   instance_refresh = {
     strategy = "Rolling"
     preferences = {
+      checkpoint_delay       = 600
+      checkpoint_percentages = [35, 70, 100]
+      instance_warmup        = 300
       min_healthy_percentage = 50
     }
     triggers = ["tag"]
@@ -667,6 +710,38 @@ module "mixed_instance" {
         weighted_capacity = "1"
       },
     ]
+  }
+
+  tags        = local.tags
+  tags_as_map = local.tags_as_map
+}
+
+################################################################################
+# With warm pool
+################################################################################
+
+module "warmed_lt" {
+  source = "../../"
+
+  # Autoscaling group
+  name = "warmed-lt-${local.name}"
+
+  vpc_zone_identifier = module.vpc.private_subnets
+  min_size            = 0
+  max_size            = 1
+  desired_capacity    = 1
+
+  # Launch template
+  use_lt    = true
+  create_lt = true
+
+  image_id      = data.aws_ami.amazon_linux.id
+  instance_type = "t3.micro"
+
+  warm_pool = {
+    pool_state                  = "Stopped"
+    min_size                    = 1
+    max_group_prepared_capacity = 2
   }
 
   tags        = local.tags

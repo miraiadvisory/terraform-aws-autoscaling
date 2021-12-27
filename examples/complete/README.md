@@ -30,13 +30,13 @@ Note that this example may create resources which cost money. Run `terraform des
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.30 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.64 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.30 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.64 |
 
 ## Modules
 
@@ -45,17 +45,18 @@ Note that this example may create resources which cost money. Run `terraform des
 | <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | ~> 6.0 |
 | <a name="module_alb_http_sg"></a> [alb\_http\_sg](#module\_alb\_http\_sg) | terraform-aws-modules/security-group/aws//modules/http-80 | ~> 4.0 |
 | <a name="module_asg_sg"></a> [asg\_sg](#module\_asg\_sg) | terraform-aws-modules/security-group/aws | ~> 4.0 |
-| <a name="module_complete_lc"></a> [complete\_lc](#module\_complete\_lc) | ../../ |  |
-| <a name="module_complete_lt"></a> [complete\_lt](#module\_complete\_lt) | ../../ |  |
-| <a name="module_default_lc"></a> [default\_lc](#module\_default\_lc) | ../../ |  |
-| <a name="module_default_lt"></a> [default\_lt](#module\_default\_lt) | ../../ |  |
-| <a name="module_disabled"></a> [disabled](#module\_disabled) | ../../ |  |
-| <a name="module_external_lc"></a> [external\_lc](#module\_external\_lc) | ../../ |  |
-| <a name="module_external_lt"></a> [external\_lt](#module\_external\_lt) | ../../ |  |
-| <a name="module_lc_only"></a> [lc\_only](#module\_lc\_only) | ../../ |  |
-| <a name="module_lt_only"></a> [lt\_only](#module\_lt\_only) | ../../ |  |
-| <a name="module_mixed_instance"></a> [mixed\_instance](#module\_mixed\_instance) | ../../ |  |
+| <a name="module_complete_lc"></a> [complete\_lc](#module\_complete\_lc) | ../../ | n/a |
+| <a name="module_complete_lt"></a> [complete\_lt](#module\_complete\_lt) | ../../ | n/a |
+| <a name="module_default_lc"></a> [default\_lc](#module\_default\_lc) | ../../ | n/a |
+| <a name="module_default_lt"></a> [default\_lt](#module\_default\_lt) | ../../ | n/a |
+| <a name="module_disabled"></a> [disabled](#module\_disabled) | ../../ | n/a |
+| <a name="module_external_lc"></a> [external\_lc](#module\_external\_lc) | ../../ | n/a |
+| <a name="module_external_lt"></a> [external\_lt](#module\_external\_lt) | ../../ | n/a |
+| <a name="module_lc_only"></a> [lc\_only](#module\_lc\_only) | ../../ | n/a |
+| <a name="module_lt_only"></a> [lt\_only](#module\_lt\_only) | ../../ | n/a |
+| <a name="module_mixed_instance"></a> [mixed\_instance](#module\_mixed\_instance) | ../../ | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
+| <a name="module_warmed_lt"></a> [warmed\_lt](#module\_warmed\_lt) | ../../ | n/a |
 
 ## Resources
 
@@ -105,6 +106,7 @@ No inputs.
 | <a name="output_complete_lt_autoscaling_group_name"></a> [complete\_lt\_autoscaling\_group\_name](#output\_complete\_lt\_autoscaling\_group\_name) | The autoscaling group name |
 | <a name="output_complete_lt_autoscaling_group_target_group_arns"></a> [complete\_lt\_autoscaling\_group\_target\_group\_arns](#output\_complete\_lt\_autoscaling\_group\_target\_group\_arns) | List of Target Group ARNs that apply to this AutoScaling Group |
 | <a name="output_complete_lt_autoscaling_group_vpc_zone_identifier"></a> [complete\_lt\_autoscaling\_group\_vpc\_zone\_identifier](#output\_complete\_lt\_autoscaling\_group\_vpc\_zone\_identifier) | The VPC zone identifier |
+| <a name="output_complete_lt_autoscaling_schedule_arns"></a> [complete\_lt\_autoscaling\_schedule\_arns](#output\_complete\_lt\_autoscaling\_schedule\_arns) | ARNs of autoscaling group schedules |
 | <a name="output_complete_lt_launch_template_arn"></a> [complete\_lt\_launch\_template\_arn](#output\_complete\_lt\_launch\_template\_arn) | The ARN of the launch template |
 | <a name="output_complete_lt_launch_template_id"></a> [complete\_lt\_launch\_template\_id](#output\_complete\_lt\_launch\_template\_id) | The ID of the launch template |
 | <a name="output_complete_lt_launch_template_latest_version"></a> [complete\_lt\_launch\_template\_latest\_version](#output\_complete\_lt\_launch\_template\_latest\_version) | The latest version of the launch template |

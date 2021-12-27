@@ -19,6 +19,12 @@ variable "use_name_prefix" {
   default     = true
 }
 
+variable "instance_name" {
+  description = "Name that is propogated to launched EC2 instances via a tag - if not provided, defaults to `var.name`"
+  type        = string
+  default     = ""
+}
+
 variable "launch_configuration" {
   description = "Name of an existing launch configuration to be used (created outside of this module)"
   type        = string
@@ -152,7 +158,7 @@ variable "suspended_processes" {
 }
 
 variable "max_instance_lifetime" {
-  description = "The maximum amount of time, in seconds, that an instance can be in service, values must be either equal to 0 or between 604800 and 31536000 seconds"
+  description = "The maximum amount of time, in seconds, that an instance can be in service, values must be either equal to 0 or between 86400 and 31536000 seconds"
   type        = number
   default     = null
 }
@@ -217,6 +223,18 @@ variable "tags_as_map" {
   default     = {}
 }
 
+variable "propagate_name" {
+  description = "Determines whether to propagate the `var.instance_name`/`var.name` tag to launch instances"
+  type        = bool
+  default     = true
+}
+
+variable "warm_pool" {
+  description = "If this block is configured, add a Warm Pool to the specified Auto Scaling group"
+  type        = any
+  default     = null
+}
+
 ################################################################################
 # Common - launch configuration or launch template
 ################################################################################
@@ -252,7 +270,7 @@ variable "key_name" {
 }
 
 variable "user_data_base64" {
-  description = "The Base64-encoded user data to provide when launching the instance"
+  description = "The Base64-encoded user data to provide when launching the instance. You should use this for Launch Templates instead user_data"
   type        = string
   default     = null
 }
@@ -304,7 +322,7 @@ variable "lc_use_name_prefix" {
 }
 
 variable "user_data" {
-  description = "(LC) The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see `user_data_base64` instead"
+  description = "(LC) The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument nor when using Launch Templates; see `user_data_base64` instead"
   type        = string
   default     = null
 }
@@ -503,4 +521,20 @@ variable "tag_specifications" {
   description = "(LT) The tags to apply to the resources during launch"
   type        = list(any)
   default     = []
+}
+
+################################################################################
+# Autoscaling group schedule
+################################################################################
+
+variable "create_schedule" {
+  description = "Determines whether to create autoscaling group schedule or not"
+  type        = bool
+  default     = true
+}
+
+variable "schedules" {
+  description = "Map of autoscaling group schedule to create"
+  type        = map(any)
+  default     = {}
 }
