@@ -2,10 +2,16 @@
 # Autoscaling group
 ################################################################################
 
-variable "create_asg" {
+variable "create" {
   description = "Determines whether to create autoscaling group or not"
   type        = bool
   default     = true
+}
+
+variable "ignore_desired_capacity_changes" {
+  description = "Determines whether the `desired_capacity` value is ignored after initial apply. See README note for more details"
+  type        = bool
+  default     = false
 }
 
 variable "name" {
@@ -25,25 +31,19 @@ variable "instance_name" {
   default     = ""
 }
 
-variable "launch_configuration" {
-  description = "Name of an existing launch configuration to be used (created outside of this module)"
-  type        = string
-  default     = null
-}
-
 variable "launch_template" {
   description = "Name of an existing launch template to be used (created outside of this module)"
   type        = string
   default     = null
 }
 
-variable "lt_version" {
+variable "launch_template_version" {
   description = "Launch template version. Can be version number, `$Latest`, or `$Default`"
   type        = string
   default     = null
 }
 
-variable "availability_zone" {
+variable "availability_zones" {
   description = "A list of one or more availability zones for the group. Used for EC2-Classic and default subnets when not specified with `vpc_zone_identifier` argument. Conflicts with `vpc_zone_identifier`"
   type        = list(string)
   default     = null
@@ -148,13 +148,13 @@ variable "force_delete" {
 variable "termination_policies" {
   description = "A list of policies to decide how the instances in the Auto Scaling Group should be terminated. The allowed values are `OldestInstance`, `NewestInstance`, `OldestLaunchConfiguration`, `ClosestToNextInstanceHour`, `OldestLaunchTemplate`, `AllocationStrategy`, `Default`"
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "suspended_processes" {
   description = "A list of processes to suspend for the Auto Scaling Group. The allowed values are `Launch`, `Terminate`, `HealthCheck`, `ReplaceUnhealthy`, `AZRebalance`, `AlarmNotification`, `ScheduledActions`, `AddToLoadBalancer`. Note that if you suspend either the `Launch` or `Terminate` process types, it can prevent your Auto Scaling Group from functioning properly"
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "max_instance_lifetime" {
@@ -166,7 +166,7 @@ variable "max_instance_lifetime" {
 variable "enabled_metrics" {
   description = "A list of metrics to collect. The allowed values are `GroupDesiredCapacity`, `GroupInServiceCapacity`, `GroupPendingCapacity`, `GroupMinSize`, `GroupMaxSize`, `GroupInServiceInstances`, `GroupPendingInstances`, `GroupStandbyInstances`, `GroupStandbyCapacity`, `GroupTerminatingCapacity`, `GroupTerminatingInstances`, `GroupTotalCapacity`, `GroupTotalInstances`"
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "metrics_granularity" {
@@ -190,7 +190,7 @@ variable "initial_lifecycle_hooks" {
 variable "instance_refresh" {
   description = "If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated"
   type        = any
-  default     = null
+  default     = {}
 }
 
 variable "use_mixed_instances_policy" {
@@ -212,42 +212,20 @@ variable "delete_timeout" {
 }
 
 variable "tags" {
-  description = "A list of tag blocks. Each element should have keys named key, value, and propagate_at_launch"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "tags_as_map" {
-  description = "A map of tags and values in the same format as other resources accept. This will be converted into the non-standard format that the aws_autoscaling_group requires."
+  description = "A map of tags to assign to resources"
   type        = map(string)
   default     = {}
 }
 
-variable "propagate_name" {
-  description = "Determines whether to propagate the `var.instance_name`/`var.name` tag to launch instances"
-  type        = bool
-  default     = true
-}
-
 variable "warm_pool" {
   description = "If this block is configured, add a Warm Pool to the specified Auto Scaling group"
-  type        = any
-  default     = null
+  type        = map(string)
+  default     = {}
 }
-
-################################################################################
-# Common - launch configuration or launch template
-################################################################################
 
 variable "ebs_optimized" {
   description = "If true, the launched EC2 instance will be EBS-optimized"
   type        = bool
-  default     = null
-}
-
-variable "iam_instance_profile_name" {
-  description = "The name attribute of the IAM instance profile to associate with launched instances"
-  type        = string
   default     = null
 }
 
@@ -258,9 +236,15 @@ variable "image_id" {
 }
 
 variable "instance_type" {
-  description = "The type of the instance to launch"
+  description = "The type of the instance. If present then `instance_requirements` cannot be present"
   type        = string
-  default     = ""
+  default     = null
+}
+
+variable "instance_requirements" {
+  description = "The attribute requirements for the type of instance. If present then `instance_type` cannot be present"
+  type        = any
+  default     = {}
 }
 
 variable "key_name" {
@@ -269,8 +253,8 @@ variable "key_name" {
   default     = null
 }
 
-variable "user_data_base64" {
-  description = "The Base64-encoded user data to provide when launching the instance. You should use this for Launch Templates instead user_data"
+variable "user_data" {
+  description = "The Base64-encoded user data to provide when launching the instance"
   type        = string
   default     = null
 }
@@ -278,247 +262,177 @@ variable "user_data_base64" {
 variable "security_groups" {
   description = "A list of security group IDs to associate"
   type        = list(string)
-  default     = null
+  default     = []
 }
 
 variable "enable_monitoring" {
   description = "Enables/disables detailed monitoring"
   type        = bool
-  default     = null
+  default     = true
 }
 
 variable "metadata_options" {
   description = "Customize the metadata options for the instance"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
-################################################################################
-# Launch configuration
-################################################################################
-
-variable "create_lc" {
-  description = "Determines whether to create launch configuration or not"
-  type        = bool
-  default     = false
-}
-
-variable "use_lc" {
-  description = "Determines whether to use a launch configuration in the autoscaling group or not"
-  type        = bool
-  default     = false
-}
-
-variable "lc_name" {
-  description = "Name of launch configuration to be created"
-  type        = string
-  default     = ""
-}
-
-variable "lc_use_name_prefix" {
-  description = "Determines whether to use `lc_name` as is or create a unique name beginning with the `lc_name` as the prefix"
-  type        = bool
-  default     = true
-}
-
-variable "user_data" {
-  description = "(LC) The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument nor when using Launch Templates; see `user_data_base64` instead"
-  type        = string
-  default     = null
-}
-
-variable "associate_public_ip_address" {
-  description = "(LC) Associate a public ip address with an instance in a VPC"
-  type        = bool
-  default     = null
-}
-
-variable "spot_price" {
-  description = "(LC) The maximum price to use for reserving spot instances (defaults to on-demand price)"
-  type        = string
-  default     = null
-}
-
-variable "placement_tenancy" {
-  description = "(LC) The tenancy of the instance. Valid values are `default` or `dedicated`"
-  type        = string
-  default     = null
-}
-
-variable "ebs_block_device" {
-  description = "(LC) Additional EBS block devices to attach to the instance"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "block_device_mappings"  {
-  description = "Additional EBS block devices to attach to the instance"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "ephemeral_block_device" {
-  description = "(LC) Customize Ephemeral (also known as 'Instance Store') volumes on the instance"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "root_block_device" {
-  description = "(LC) Customize details about the root block device of the instance"
-  type        = list(map(string))
-  default     = []
+variable "autoscaling_group_tags" {
+  description = "A map of additional tags to add to the autoscaling group"
+  type        = map(string)
+  default     = {}
 }
 
 ################################################################################
 # Launch template
 ################################################################################
 
-variable "create_lt" {
+variable "create_launch_template" {
   description = "Determines whether to create launch template or not"
   type        = bool
-  default     = false
+  default     = true
 }
 
-variable "use_lt" {
-  description = "Determines whether to use a launch template in the autoscaling group or not"
-  type        = bool
-  default     = false
-}
-
-variable "lt_name" {
+variable "launch_template_name" {
   description = "Name of launch template to be created"
   type        = string
   default     = ""
 }
 
-variable "lt_use_name_prefix" {
-  description = "Determines whether to use `lt_name` as is or create a unique name beginning with the `lt_name` as the prefix"
+variable "launch_template_use_name_prefix" {
+  description = "Determines whether to use `launch_template_name` as is or create a unique name beginning with the `launch_template_name` as the prefix"
   type        = bool
   default     = true
 }
 
-variable "description" {
-  description = "(LT) Description of the launch template"
+variable "launch_template_description" {
+  description = "Description of the launch template"
   type        = string
   default     = null
 }
 
 variable "default_version" {
-  description = "(LT) Default Version of the launch template"
+  description = "Default Version of the launch template"
   type        = string
   default     = null
 }
 
 variable "update_default_version" {
-  description = "(LT) Whether to update Default Version each update. Conflicts with `default_version`"
+  description = "Whether to update Default Version each update. Conflicts with `default_version`"
   type        = string
   default     = null
 }
 
 variable "disable_api_termination" {
-  description = "(LT) If true, enables EC2 instance termination protection"
+  description = "If true, enables EC2 instance termination protection"
   type        = bool
   default     = null
 }
 
 variable "instance_initiated_shutdown_behavior" {
-  description = "(LT) Shutdown behavior for the instance. Can be `stop` or `terminate`. (Default: `stop`)"
+  description = "Shutdown behavior for the instance. Can be `stop` or `terminate`. (Default: `stop`)"
   type        = string
   default     = null
 }
 
 variable "kernel_id" {
-  description = "(LT) The kernel ID"
+  description = "The kernel ID"
   type        = string
   default     = null
 }
 
 variable "ram_disk_id" {
-  description = "(LT) The ID of the ram disk"
+  description = "The ID of the ram disk"
   type        = string
   default     = null
 }
 
 variable "block_device_mappings" {
-  description = "(LT) Specify volumes to attach to the instance besides the volumes specified by the AMI"
+  description = "Specify volumes to attach to the instance besides the volumes specified by the AMI"
   type        = list(any)
   default     = []
 }
 
 variable "capacity_reservation_specification" {
-  description = "(LT) Targeting for EC2 capacity reservations"
+  description = "Targeting for EC2 capacity reservations"
   type        = any
-  default     = null
+  default     = {}
 }
 
 variable "cpu_options" {
-  description = "(LT) The CPU options for the instance"
+  description = "The CPU options for the instance"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "credit_specification" {
-  description = "(LT) Customize the credit specification of the instance"
+  description = "Customize the credit specification of the instance"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "elastic_gpu_specifications" {
-  description = "(LT) The elastic GPU to attach to the instance"
+  description = "The elastic GPU to attach to the instance"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "elastic_inference_accelerator" {
-  description = "(LT) Configuration block containing an Elastic Inference Accelerator to attach to the instance"
+  description = "Configuration block containing an Elastic Inference Accelerator to attach to the instance"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "enclave_options" {
-  description = "(LT) Enable Nitro Enclaves on launched instances"
+  description = "Enable Nitro Enclaves on launched instances"
   type        = map(string)
-  default     = null
+  default     = {}
 }
 
 variable "hibernation_options" {
-  description = "(LT) The hibernation options for the instance"
+  description = "The hibernation options for the instance"
   type        = map(string)
-  default     = null
-}
-
-variable "iam_instance_profile_arn" {
-  description = "(LT) The IAM Instance Profile ARN to launch the instance with"
-  type        = string
-  default     = null
+  default     = {}
 }
 
 variable "instance_market_options" {
-  description = "(LT) The market (purchasing) option for the instance"
+  description = "The market (purchasing) option for the instance"
   type        = any
-  default     = null
+  default     = {}
 }
 
 variable "license_specifications" {
-  description = "(LT) A list of license specifications to associate with"
+  description = "A list of license specifications to associate with"
   type        = map(string)
-  default     = null
+  default     = {}
+}
+
+variable "maintenance_options" {
+  description = "The maintenance options for the instance"
+  type        = any
+  default     = {}
 }
 
 variable "network_interfaces" {
-  description = "(LT) Customize network interfaces to be attached at instance boot time"
+  description = "Customize network interfaces to be attached at instance boot time"
   type        = list(any)
   default     = []
 }
 
 variable "placement" {
-  description = "(LT) The placement of the instance"
+  description = "The placement of the instance"
   type        = map(string)
-  default     = null
+  default     = {}
+}
+
+variable "private_dns_name_options" {
+  description = "The options for the instance hostname. The default values are inherited from the subnet"
+  type        = map(string)
+  default     = {}
 }
 
 variable "tag_specifications" {
-  description = "(LT) The tags to apply to the resources during launch"
+  description = "The tags to apply to the resources during launch"
   type        = list(any)
   default     = []
 }
@@ -539,7 +453,6 @@ variable "schedules" {
   default     = {}
 }
 
-
 ################################################################################
 # Autoscaling policy
 ################################################################################
@@ -554,4 +467,74 @@ variable "scaling_policies" {
   description = "Map of target scaling policy schedule to create"
   type        = any
   default     = {}
+}
+
+################################################################################
+# IAM Role / Instance Profile
+################################################################################
+
+variable "create_iam_instance_profile" {
+  description = "Determines whether an IAM instance profile is created or to use an existing IAM instance profile"
+  type        = bool
+  default     = false
+}
+
+variable "iam_instance_profile_arn" {
+  description = "Amazon Resource Name (ARN) of an existing IAM instance profile. Used when `create_iam_instance_profile` = `false`"
+  type        = string
+  default     = null
+}
+
+variable "iam_instance_profile_name" {
+  description = "The name of the IAM instance profile to be created (`create_iam_instance_profile` = `true`) or existing (`create_iam_instance_profile` = `false`)"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_name" {
+  description = "Name to use on IAM role created"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_use_name_prefix" {
+  description = "Determines whether the IAM role name (`iam_role_name`) is used as a prefix"
+  type        = bool
+  default     = true
+}
+
+variable "iam_role_path" {
+  description = "IAM role path"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_description" {
+  description = "Description of the role"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_policies" {
+  description = "IAM policies to attach to the IAM role"
+  type        = map(string)
+  default     = {}
+}
+
+variable "iam_role_tags" {
+  description = "A map of additional tags to add to the IAM role created"
+  type        = map(string)
+  default     = {}
+}
+
+variable "putin_khuylo" {
+  description = "Do you agree that Putin doesn't respect Ukrainian sovereignty and territorial integrity? More info: https://en.wikipedia.org/wiki/Putin_khuylo!"
+  type        = bool
+  default     = true
 }

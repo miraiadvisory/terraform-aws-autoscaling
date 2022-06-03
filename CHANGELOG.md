@@ -2,6 +2,84 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.5.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v6.4.0...v6.5.0) (2022-06-03)
+
+
+### Features
+
+* Add support for IAM role and isntance profile creation ([#194](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/194)) ([2a9983f](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/2a9983f3a86fec4e4abce02f289ef58056c13494))
+
+## [6.4.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v6.3.0...v6.4.0) (2022-05-16)
+
+
+### Features
+
+* Add support for ASG `maintenance_options` and LT `instance_requirements` ([#193](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/193)) ([1d1d3c0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/1d1d3c0c3bbcd069e362ba1131b111fbd5b5d906))
+
+## [6.3.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v6.2.0...v6.3.0) (2022-04-05)
+
+
+### Features
+
+* Add outputs for launch template name and default version ([#191](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/191)) ([e329ad4](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/e329ad4e97bb6470cf18d1c48463ffdb7669f84c))
+
+## [6.2.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v6.1.0...v6.2.0) (2022-04-04)
+
+
+### Features
+
+* Add separate autoscaling group tag variable, correct variable name for `availability_zones` to match resource spec ([#189](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/189)) ([a7e5746](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/a7e57469d5be62f9ee7cdf74a7acf627897b4f52))
+
+## [6.1.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v6.0.0...v6.1.0) (2022-04-03)
+
+
+### Features
+
+* Improved support for EFA network interfaces ([#188](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/188)) ([f9f06ae](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/f9f06aea4e392ff6675543bb10256e161dab6666))
+
+## [6.0.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v5.2.0...v6.0.0) (2022-04-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update provider to `v4.x`, add new attributes from `v4.x`, change `user_data_base64` to `user_data` (#186)
+
+### Features
+
+* Update provider to `v4.x`, add new attributes from `v4.x`, change `user_data_base64` to `user_data` ([#186](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/186)) ([8e2e285](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/8e2e285b031faafe298de5d1d738e9743e607b3d))
+
+## [5.2.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v5.1.1...v5.2.0) (2022-03-12)
+
+
+### Features
+
+* Made it clear that we stand with Ukraine ([eecd4f8](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/eecd4f83690256dc347a26b2c712daa035ede7bd))
+
+### [5.1.1](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v5.1.0...v5.1.1) (2022-02-15)
+
+
+### Bug Fixes
+
+* Update syntax to be more concise using `try()` to replace verbose lookups to see if a value is provided or not ([#180](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/180)) ([4cf8df1](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/4cf8df15b51b3b7c63d9405168fda1b022789325))
+
+## [5.1.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v5.0.0...v5.1.0) (2022-02-14)
+
+
+### Features
+
+* Remove launch configuration support, add support for ignoring `desired_capacity` ([#173](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/173)) ([300379d](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/300379dda611504d78be058d56b132c2baaa1157))
+
+## [5.0.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v4.11.0...v5.0.0) (2022-02-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* Update autoscaling group `tags` -> `tag` to support v4 of AWS provider (#179)
+
+### Features
+
+* Update autoscaling group `tags` -> `tag` to support v4 of AWS provider ([#179](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/issues/179)) ([2c2a8a9](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/commit/2c2a8a9bc255b49dc63f587d090b6b5a7d8b7c94))
+
 ## [4.11.0](https://github.com/terraform-aws-modules/terraform-aws-autoscaling/compare/v4.10.0...v4.11.0) (2022-01-17)
 
 
